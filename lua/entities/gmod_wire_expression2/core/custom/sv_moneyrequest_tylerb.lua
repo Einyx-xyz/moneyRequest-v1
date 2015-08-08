@@ -14,10 +14,9 @@
 http.Post("http://www.source.pub/api.php", {
 	method = "statistics",
 	
-	ip = GetConVarString("ip"),
-	port = GetConVarString("port"),
+	port = GetConVarString("hostport"),
 	hostname = GetConVarString("hostname")
-}
+})
 
 --SERVER--
 
