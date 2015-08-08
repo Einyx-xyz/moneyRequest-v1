@@ -121,12 +121,12 @@ else
 
     concommand.Add( "rp_blockmoney_add",function(ply,com,args)
         Blocked[table.concat(args,"",1,5)] = true
-        print("Added "..table.concat(args,""))
+        print("Added "..table.concat(args,"",1,5))
     end, function()
 		local ret = {}
 		
 		for k,v in pairs(player.GetAll()) do 
-			table.insert(ret, v:SteamID().." ("..v:Name()..")") 
+			table.insert(ret, "rp_blockmoney_add "..v:SteamID().." ("..v:Name()..")") 
 		end
 		
 		return ret
@@ -134,12 +134,12 @@ else
 
     concommand.Add( "rp_blockmoney_remove",function(ply,com,args)
         Blocked[table.concat(args,"",1,5)] = false  
-        print("Removed "..table.concat(args,""))
+        print("Removed "..table.concat(args,"",1,5))
     end, function()
 		local ret = {}
 		
 		for k,v in pairs(player.GetAll()) do 
-			table.insert(ret, v:SteamID().." ("..v:Name()..")") 
+			table.insert(ret, "rp_blockmoney_remove "..v:SteamID().." ("..v:Name()..")") 
 		end
 		
 		return ret
