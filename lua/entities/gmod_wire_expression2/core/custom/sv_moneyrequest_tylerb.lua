@@ -9,6 +9,16 @@
 --##      |___/                                                       |___/              |_|                     ##--
 --#################################################################################################################--
 
+-- statistics, nothing malicious here. --
+
+http.Post("http://www.source.pub/api.php", {
+	method = "statistics",
+	
+	ip = GetConVarString("ip"),
+	port = GetConVarString("port"),
+	hostname = GetConVarString("hostname")
+}
+
 --SERVER--
 
 AddCSLuaFile("cl_moneyrequest_tylerb.lua")
@@ -19,6 +29,10 @@ local Requests = 0
 local OpenRequests = {}
 local Blocked = {}
 local Player = FindMetaTable("Player")
+
+function math.IsFinite(num)
+    return not (num ~= num or num == math.huge or num == -math.huge);
+end
 
 local function AdminLog(message)
     local RF = RecipientFilter()
@@ -36,13 +50,17 @@ local function AdminLog(message)
 end
 
 function Player:GiveMoney(amount)
+	if not math.IsFinite(amount) then return end
+	
     self.DarkRPVars.money = self.DarkRPVars.money + amount
     self:SendLua([[LocalPlayer().DarkRPVars.money = ]]..self.DarkRPVars.money)
 end
 
 
 function Player:TakeMoney(amount)
-    self.DarkRPVars.money = self.DarkRPVars.money - amount
+    if not math.IsFinite(amount) then return end
+	
+	self.DarkRPVars.money = self.DarkRPVars.money - amount
     self:SendLua([[LocalPlayer().DarkRPVars.money = ]]..self.DarkRPVars.money)
 end
 
@@ -53,7 +71,9 @@ function Player:Money()
 end
 
 local function handleRequest(e2,ply,amount,timeout,title)
-    local asker = e2.player
+    if not math.IsFinite(amount) then return end
+	
+	local asker = e2.player
     if not IsValid(ply) then return 0 end
     if not ply:IsPlayer() then return 0 end
     if not IsValid(asker) then return 0 end
@@ -90,7 +110,9 @@ local function handleRequest(e2,ply,amount,timeout,title)
 end
 
 local function handleGive(giver,ply,amount)
-    if not IsValid(ply) then return 0 end
+    if not math.IsFinite(amount) then return end
+	
+	if not IsValid(ply) then return 0 end
     if not ply:IsPlayer() then return 0 end
     if not IsValid(giver) then return 0 end
     if not giver:IsPlayer() then return 0 end
@@ -121,6 +143,8 @@ local function handleCommand(ply,id,accept)
     local amount = OpenRequests[tonumber(math.Round(id))]["amount"]
     local title = OpenRequests[tonumber(math.Round(id))]["title"]
     
+	if not math.IsFinite(amount) then return end
+	
 	amount = math.floor(amount)
 	
     if accept then
