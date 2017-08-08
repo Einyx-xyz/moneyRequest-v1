@@ -107,7 +107,7 @@ local function handleRequest(e2,ply,amount,timeout,title)
 end
 
 local function handleGive(giver,ply,amount)
-    if not math.IsFinite(amount) then return end
+    if not math.IsFinite(amount) then return 0 end
 	
 	if not IsValid(ply) then return 0 end
     if not ply:IsPlayer() then return 0 end
@@ -164,6 +164,7 @@ local function handleCommand(ply,id,accept)
             
             e2.ClkTimeMoney = CurTime()
             e2.ClkPlayer = ply
+            e2.ClkAmount = amount
             e2.ClkTitle = title
             e2:Execute()
         end
@@ -172,6 +173,7 @@ local function handleCommand(ply,id,accept)
         if IsValid(e2) then
             e2.ClkTimeNoMoney = CurTime()
             e2.ClkNoPlayer = ply
+            e2.ClkNoAmount = amount
 			e2.ClkNoTitle = title
             e2:Execute()
         end   
@@ -183,11 +185,12 @@ local function handleTimeout(ply,id)
     if not ply:IsPlayer() then return end
     
     local e2 = OpenRequests[tonumber(math.Round(id))]["e2"] 
-    local e2 = OpenRequests[tonumber(math.Round(id))]["title"] 
+    local title = OpenRequests[tonumber(math.Round(id))]["title"] 
 	
     if IsValid(e2) then
         e2.Timeout = CurTime()
         e2.TimeoutPlayer = ply
+        e2.TimeoutAmount = ply
         e2.TimeoutTitle = title
         e2:Execute()
     end
@@ -217,6 +220,10 @@ e2function number moneyGive(entity ply, amount)
     return handleGive(self.player,ply,amount)
 end
 
+----------------------------------------------------------------
+----------------------------------------------------------------
+----------------------------------------------------------------
+
 e2function number moneyClk()
     if not self.entity.ClkTimeMoney then return 0 end   
     return self.entity.ClkTimeMoney == CurTime() and 1 or 0
@@ -227,6 +234,27 @@ e2function number moneyClk(string str)
     if not self.entity.ClkTitle then return 0 end   
     return (self.entity.ClkTitle == str and self.entity.ClkTimeMoney == CurTime()) and 1 or 0
 end
+
+e2function string moneyClkTitle()
+    if not self.entity.ClkTimeMoney then return "" end   
+    return self.entity.ClkTimeMoney == CurTime() and self.entity.ClkTitle or ""
+end
+
+e2function number moneyClkAmount()
+    if not self.entity.ClkTimeMoney then return 0 end   
+    return self.entity.ClkTimeMoney == CurTime() and self.entity.ClkAmount or 0
+end
+
+e2function entity moneyClkPlayer()
+    if not self.entity.ClkPlayer then return nil end   
+    if not self.entity.ClkPlayer:IsPlayer() then return nil end   
+
+    return self.entity.ClkPlayer
+end
+
+----------------------------------------------------------------
+----------------------------------------------------------------
+----------------------------------------------------------------
 
 e2function number moneyNoClk()
     if not self.entity.ClkTimeNoMoney then return 0 end   
@@ -239,11 +267,14 @@ e2function number moneyNoClk(string str)
     return (self.entity.ClkNoTitle == str and self.entity.ClkTimeNoMoney == CurTime()) and 1 or 0
 end
 
-e2function entity moneyClkPlayer()
-    if not self.entity.ClkPlayer then return nil end   
-    if not self.entity.ClkPlayer:IsPlayer() then return nil end   
+e2function string moneyNoClkTitle()
+    if not self.entity.ClkTimeNoMoney then return "" end   
+    return self.entity.ClkTimeNoMoney == CurTime() and self.entity.ClkNoTitle or ""
+end
 
-    return self.entity.ClkPlayer
+e2function number moneyNoClkAmount()
+    if not self.entity.ClkTimeNoMoney then return 0 end   
+    return self.entity.ClkTimeNoMoney == CurTime() and self.entity.ClkNoAmount or 0
 end
 
 e2function entity moneyNoClkPlayer()
@@ -252,6 +283,10 @@ e2function entity moneyNoClkPlayer()
 
     return self.entity.ClkNoPlayer
 end
+
+----------------------------------------------------------------
+----------------------------------------------------------------
+----------------------------------------------------------------
 
 e2function number moneyTimeout()
     if not self.entity.Timeout then return 0 end   
@@ -264,12 +299,26 @@ e2function number moneyTimeout(string str)
     return (self.entity.TimeoutTitle == str and self.entity.Timeout == CurTime()) and 1 or 0
 end
 
+e2function string moneyTimeoutTitle()
+    if not self.entity.Timeout then return "" end   
+    return self.entity.Timeout == CurTime() and self.entity.TimeoutTitle or ""
+end
+
+e2function number moneyTimeoutAmount()
+    if not self.entity.Timeout then return 0 end   
+    return self.entity.Timeout == CurTime() and self.entity.TimeoutAmount or 0
+end
+
 e2function entity moneyTimeoutPlayer()
     if not self.entity.TimeoutPlayer then return nil end   
     if not self.entity.TimeoutPlayer:IsPlayer() then return nil end   
 
     return self.entity.TimeoutPlayer
 end
+
+----------------------------------------------------------------
+----------------------------------------------------------------
+----------------------------------------------------------------
 
 e2function number entity:money()
     if not IsValid(this) then return 0 end
