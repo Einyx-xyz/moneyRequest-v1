@@ -51,16 +51,14 @@ end
 function Player:GiveMoney(amount)
 	if not math.IsFinite(amount) then return end
 	
-    self.DarkRPVars.money = self.DarkRPVars.money + amount
-    self:SendLua([[LocalPlayer().DarkRPVars.money = ]]..self.DarkRPVars.money)
+    self:addMoney(math.abs(amount))
 end
 
 
 function Player:TakeMoney(amount)
     if not math.IsFinite(amount) then return end
 	
-	self.DarkRPVars.money = self.DarkRPVars.money - amount
-    self:SendLua([[LocalPlayer().DarkRPVars.money = ]]..self.DarkRPVars.money)
+	self:addMoney(-math.abs(amount))
 end
 
 function Player:Money()
@@ -151,6 +149,12 @@ local function handleCommand(ply,id,accept)
         if IsValid(e2) then
             if ply:Money() - amount < 0 then 
                 ply:ChatPrint("You cannot afford to pay this.")
+				
+				e2.ClkTimeNoMoney = CurTime()
+				e2.ClkNoPlayer = ply
+				e2.ClkNoTitle = title
+				e2:Execute()
+			
                 return
             end
             ply:TakeMoney(amount)
@@ -180,6 +184,7 @@ local function handleTimeout(ply,id)
     
     local e2 = OpenRequests[tonumber(math.Round(id))]["e2"] 
     local e2 = OpenRequests[tonumber(math.Round(id))]["title"] 
+	
     if IsValid(e2) then
         e2.Timeout = CurTime()
         e2.TimeoutPlayer = ply
