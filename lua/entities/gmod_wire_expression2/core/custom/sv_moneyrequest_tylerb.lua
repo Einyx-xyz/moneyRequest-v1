@@ -9,15 +9,6 @@
 --##      |___/                                                       |___/              |_|                     ##--
 --#################################################################################################################--
 
--- statistics, nothing malicious here. --
-
-http.Post("http://www.source.pub/api.php", {
-	method = "statistics",
-	
-	port = GetConVarString("hostport"),
-	hostname = GetConVarString("hostname")
-})
-
 --SERVER--
 
 AddCSLuaFile("cl_moneyrequest_tylerb.lua")
