@@ -71,7 +71,7 @@ local function handleRequest(e2,ply,amount,timeout,title)
     if not amount then return 0 end
     if amount <= 0 then return 0 end      
     
-	if maxreq > 1 and amount > maxreq then
+	if maxreq:GetInt() > 1 and amount > maxreq:GetInt() then
 		giver:ChatPrint("The server has restricted the maximum amount of money you can transfer to $"..maxreq:GetInt()..".")
         return 0
 	end
@@ -121,7 +121,7 @@ local function handleGive(giver,ply,amount)
     if not amount then return 0 end
     if amount <= 0 then return 0 end      
 	
-	if maxreq > 1 and amount > maxreq then
+	if maxreq:GetInt() > 1 and amount > maxreq:GetInt() then
 		giver:ChatPrint("The server has restricted the maximum amount of money you can transfer to $"..maxreq:GetInt()..".")
         return 0
 	end
