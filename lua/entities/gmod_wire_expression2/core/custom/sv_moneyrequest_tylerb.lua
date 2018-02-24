@@ -11,9 +11,11 @@
 
 --SERVER--
 
-AddCSLuaFile("cl_moneyrequest_tylerb.lua")
+--AddCSLuaFile("cl_moneyrequest_tylerb.lua")
 
 util.AddNetworkString( "moneyRequest" )
+
+local maxreq = CreateConVar("sv_moneyrequest_max", 0, {FCVAR_ARCHIVE})
 
 local Requests = 0
 local OpenRequests = {}
@@ -68,7 +70,16 @@ local function handleRequest(e2,ply,amount,timeout,title)
     if not asker:IsPlayer() then return 0 end
     if not amount then return 0 end
     if amount <= 0 then return 0 end      
-    if ply:Money() - amount < 0 then return 0 end
+    
+	if maxreq > 1 and amount > maxreq then
+		giver:ChatPrint("The server has restricted the maximum amount of money you can transfer to $"..maxreq:GetInt()..".")
+        return 0
+	end
+	
+	if ply:Money() - amount < 0 then 
+		asker:ChatPrint("The player cannot afford that transaction.")
+        return 0 
+	end
     
 	amount = math.floor(amount)
 	
@@ -109,10 +120,17 @@ local function handleGive(giver,ply,amount)
 	
     if not amount then return 0 end
     if amount <= 0 then return 0 end      
+	
+	if maxreq > 1 and amount > maxreq then
+		giver:ChatPrint("The server has restricted the maximum amount of money you can transfer to $"..maxreq:GetInt()..".")
+        return 0
+	end
+	
     if giver:Money() - amount < 0 then 
         giver:ChatPrint("Your E2 attempted to give $"..amount..", which you can't afford.")
         return 0
     end
+	
     ply:GiveMoney(amount)
     giver:TakeMoney(amount)
     ply:ChatPrint("You received $"..amount.." from "..giver:Name().."'s E2.")
